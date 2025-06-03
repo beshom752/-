@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>كلمة سر خاصة بجهازك</title>
+  <style>
+    body { font-family: Arial; text-align: center; direction: rtl; padding: 50px; background: #f9f9f9; }
+    .password { font-size: 2em; color: #2c3e50; background: #fff; padding: 15px 30px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin: 20px auto; display: inline-block; }
+    button { padding: 10px 20px; font-size: 1em; background-color: #3498db; color: #fff; border: none; border-radius: 6px; cursor: pointer; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+  <h2>🔐 كلمة السر الخاصة بجهازك (تتغير كل يوم):</h2>
+  <div class="password" id="password">جاري التحميل...</div>
+  <br>
+  <button onclick="copyPassword()">📋 نسخ الكلمة</button>
+
+  <script>
+    function hashString(str) {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        hash = (hash << 5) - hash + str.charCodeAt(i);
+        hash |= 0;
+      }
+      return btoa(Math.abs(hash).toString()).slice(0, 10);
+    }
+
+    function generatePassword(ip) {
+      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+      return hashString(ip + today);
+    }
+
+    function copyPassword() {
+      const password = document.getElementById("password").textContent;
+      navigator.clipboard.writeText(password).then(() => {
+        alert("✅ تم نسخ كلمة السر");
+      });
+    }
+
+    // احضر الـ IP من خدمة خارجية
+    fetch('https://api.ipify.org?format=json')
+      .then(res => res.json())
+      .then(data => {
+        const ip = data.ip;
+        const password = generatePassword(ip);
+        document.getElementById("password").textContent = password;
+      })
+      .catch(err => {
+        document.getElementById("password").textContent = "❌ فشل في جلب IP";
+      });
+  </script>
+
+</body>
+</html>
